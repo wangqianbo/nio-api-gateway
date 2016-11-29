@@ -11,15 +11,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: io.netty:netty-all:4.1.6.Final" level="project" />
     <orderEntry type="library" name="Maven: org.asynchttpclient:async-http-client:2.0.24" level="project" />
     <orderEntry type="library" name="Maven: org.asynchttpclient:async-http-client-netty-utils:2.0.24" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.0.42.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-codec-http:4.0.42.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.0.42.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.0.42.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-transport-native-epoll:linux-x86_64:4.0.42.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-common:4.0.42.Final" level="project" />
-    <orderEntry type="library" name="Maven: io.netty:netty-transport:4.0.42.Final" level="project" />
     <orderEntry type="library" name="Maven: org.asynchttpclient:netty-resolver-dns:2.0.24" level="project" />
     <orderEntry type="library" name="Maven: org.asynchttpclient:netty-resolver:2.0.24" level="project" />
     <orderEntry type="library" name="Maven: org.asynchttpclient:netty-codec-dns:2.0.24" level="project" />

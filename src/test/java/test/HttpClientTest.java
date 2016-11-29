@@ -1,17 +1,19 @@
 package test;
 
+import io.netty.channel.ChannelFuture;
+import netty.rest.proxy.HttpFileServer;
 import org.asynchttpclient.*;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
+import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-/**
- * Created by wangqianbo on 2016/11/28.
- */
 
 public class HttpClientTest {
     public void test() throws ExecutionException, InterruptedException {
@@ -53,15 +55,19 @@ public class HttpClientTest {
         promise2.join(); // wait for completion
     }
 
-    @Test
-    public void test2() {
+    public void test2() throws FileNotFoundException {
         String url = "http://182.48.117.175:8080/chinaapi/users/4/files?share=false";
+        File file = new File("a.jpg");
+        RandomAccessFile input =  new RandomAccessFile(file,"r");
+        input.getChannel();
         AsyncHttpClientConfig config = new DefaultAsyncHttpClientConfig.Builder()
                 .setDisableUrlEncodingForBoundRequests(true)
+                .setChunkedFileChunkSize(1024)
+                .setHttpClientCodecMaxChunkSize(1)
                 .setKeepAlive(true)
-                .setTcpNoDelay(true)
-                .setCompressionEnforced(true)
+                .setTcpNoDelay(false)
                 .build();
+
         AsyncHttpClient asyncHttpClient = new DefaultAsyncHttpClient(config);
         CompletableFuture<Response> future = asyncHttpClient
                 .preparePost(url)
@@ -69,7 +75,7 @@ public class HttpClientTest {
                 .addHeader("x-ehealth-meta-apikey-type", "USER_ID")
                 .addHeader("x-ehealth-meta-signature", "USER_ID")
                 .addHeader("x-ehealth-meta-guid", "1234")
-                .setBody(new File("b.jpg"))
+                .setBody(new File("a.jpg"))
                 .execute()
                 .toCompletableFuture()
                 .exceptionally(throwable -> {
@@ -85,6 +91,21 @@ public class HttpClientTest {
                 });
         System.out.println("start task");
         future.join();
+    }
+
+    @Test
+    public void test3() {
+        int port = 8887;
+        final HttpFileServer endpoint = new HttpFileServer();
+        ChannelFuture future = endpoint.start(
+                new InetSocketAddress(port));
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                endpoint.destroy();
+            }
+        });
+        future.channel().closeFuture().syncUninterruptibly();
     }
 
 }

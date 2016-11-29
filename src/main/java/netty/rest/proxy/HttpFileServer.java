@@ -1,4 +1,4 @@
-package netty.part3;
+package netty.rest.proxy;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -10,21 +10,21 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.ImmediateEventExecutor;
+import netty.part3.ChatServerInitializer;
 
 import java.net.InetSocketAddress;
 
 /**
  * Created by wangqianbo on 2016/11/21.
  */
-public class ChatServer {
+public class HttpFileServer {
     private final ChannelGroup channelGroup =
             new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
-    private final EventLoopGroup worker = new NioEventLoopGroup();
-    private final EventLoopGroup boss = new NioEventLoopGroup();
+    private final EventLoopGroup group = new NioEventLoopGroup();
     private Channel channel;
     public ChannelFuture start(InetSocketAddress address) {
         ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(boss,worker)
+        bootstrap.group(group)
                 .channel(NioServerSocketChannel.class)
                 .childHandler(createInitializer(channelGroup));
         ChannelFuture future = bootstrap.bind(address);
@@ -34,15 +34,14 @@ public class ChatServer {
     }
     protected ChannelInitializer<Channel> createInitializer(
             ChannelGroup group) {
-        return new ChatServerInitializer(group);
+        return new HttpFileServerInitializer(group);
     }
     public void destroy() {
         if (channel != null) {
             channel.close();
         }
         channelGroup.close();
-        worker.shutdownGracefully();
-        boss.shutdownGracefully();
+        group.shutdownGracefully();
     }
     public static void main(String[] args) throws Exception {
 //        if (args.length != 1) {
@@ -50,7 +49,7 @@ public class ChatServer {
 //            System.exit(1);
 //        }
         int port = 8887;
-        final ChatServer endpoint = new ChatServer();
+        final HttpFileServer endpoint = new HttpFileServer();
         ChannelFuture future = endpoint.start(
                 new InetSocketAddress(port));
         Runtime.getRuntime().addShutdownHook(new Thread() {
