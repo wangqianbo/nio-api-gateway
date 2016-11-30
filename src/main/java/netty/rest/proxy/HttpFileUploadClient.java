@@ -1,6 +1,7 @@
 package netty.rest.proxy;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
@@ -8,7 +9,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 import java.net.InetSocketAddress;
@@ -25,7 +26,7 @@ public class HttpFileUploadClient {
         this.port = port;
     }
 
-    public void start() throws Exception {
+    public Channel start() throws Exception {
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();
         b.group(group)
@@ -36,17 +37,18 @@ public class HttpFileUploadClient {
                     public void initChannel(SocketChannel ch)
                             throws Exception {
                         ch.pipeline().addLast(new HttpClientCodec());
+                        ch.pipeline().addLast(new HttpContentDecompressor());
                         ch.pipeline().addLast(new ChunkedWriteHandler());
-                        ch.pipeline().addLast(new HttpObjectAggregator(64 * 1024));
                         ch.pipeline().addLast(new SendRequestHandler());
                     }
                 });
         ChannelFuture f = b.connect().sync();
+        return f.channel();
     }
 
     public static void main(String[] args) throws Exception {
-        String host = "localhost";
-        int port = 8887;
-        new HttpFileUploadClient(host, port).start();
+        String host = "182.48.117.175";
+        int port = 8080;
+        Channel channel = new HttpFileUploadClient(host, port).start();
     }
 }
