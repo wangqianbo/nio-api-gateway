@@ -47,8 +47,21 @@ public class HttpFileUploadClient {
     }
 
     public static void main(String[] args) throws Exception {
-        String host = "182.48.117.175";
-        int port = 8080;
-        Channel channel = new HttpFileUploadClient(host, port).start();
+        String host = "localhost";
+        int port = 8887;
+        for(int i = 0; i< 100; i++) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Channel channel = new HttpFileUploadClient(host, port).start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            thread.start();
+
+        }
     }
 }

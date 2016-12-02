@@ -10,7 +10,6 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.ImmediateEventExecutor;
-import netty.part3.ChatServerInitializer;
 
 import java.net.InetSocketAddress;
 
@@ -20,11 +19,13 @@ import java.net.InetSocketAddress;
 public class HttpFileServer {
     private final ChannelGroup channelGroup =
             new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
-    private final EventLoopGroup group = new NioEventLoopGroup();
+    private final EventLoopGroup work = new NioEventLoopGroup();
+    private final EventLoopGroup boss = new NioEventLoopGroup();
     private Channel channel;
+
     public ChannelFuture start(InetSocketAddress address) {
         ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(group)
+        bootstrap.group(boss, work)
                 .channel(NioServerSocketChannel.class)
                 .childHandler(createInitializer(channelGroup));
         ChannelFuture future = bootstrap.bind(address);
@@ -32,17 +33,21 @@ public class HttpFileServer {
         channel = future.channel();
         return future;
     }
+
     protected ChannelInitializer<Channel> createInitializer(
             ChannelGroup group) {
         return new HttpFileServerInitializer(group);
     }
+
     public void destroy() {
         if (channel != null) {
             channel.close();
         }
         channelGroup.close();
-        group.shutdownGracefully();
+        work.shutdownGracefully();
+        boss.shutdownGracefully();
     }
+
     public static void main(String[] args) throws Exception {
 //        if (args.length != 1) {
 //            System.err.println("Please give port as argument");

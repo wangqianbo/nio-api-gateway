@@ -3,16 +3,14 @@ package netty.rest.proxy;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
 import java.io.RandomAccessFile;
 
 import static io.netty.handler.codec.http.HttpHeaders.Names.*;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ACCEPT;
-import static io.netty.handler.codec.http.HttpHeaders.Names.USER_AGENT;
 
 /**
  * Created by wangqianbo on 2016/11/21.
@@ -38,7 +36,7 @@ public class SendRequestHandler
         request.headers().set(HOST, "182.48.117.175");
         request.headers().set(ACCEPT, "*/*");
         request.headers().set(USER_AGENT, "Mozilla/5.0 ");
-        Object msg = new ChunkedNioFile(file.getChannel(), 1024);
+        Object msg = new DefaultFileRegion(file.getChannel(), 0, file.length());
         ctx.write(request).addListener(new GenericFutureListener<Future<? super Void>>() {
             @Override
             public void operationComplete(Future<? super Void> future) throws Exception {
